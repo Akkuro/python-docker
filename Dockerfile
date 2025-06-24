@@ -43,6 +43,12 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
 
 
 # ------------------------------- Production Stage ------------------------------ #
+FROM base AS prod-builder
+
+# Install production dependencies only
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --locked --no-dev
+
 FROM python:3.13-alpine AS prod
 
 # Create non-root user
@@ -50,9 +56,9 @@ RUN adduser -D appuser
 
 WORKDIR /app/
 
-# Copy virtual environment and source code from build stage
-COPY --from=builder /app/.venv .venv
-COPY --from=builder /app/src /app/src
+# Copy virtual environment and source code from builder
+COPY --from=prod-builder /app/.venv .venv
+COPY --from=prod-builder /app/src /app/src
 
 # Set PATH to use virtual environment binaries
 ENV PATH="/app/.venv/bin:$PATH" \
