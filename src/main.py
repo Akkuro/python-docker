@@ -16,7 +16,7 @@ class Channel:
 
 channels: dict[str, Channel] = {}
 
-with open("channels.json", encoding="utf8") as file:
+with open("./channels.json", encoding="utf8") as file:
     channels_raw = json.load(file)
     for channel_raw in channels_raw:
         channel = Channel(**channel_raw)
